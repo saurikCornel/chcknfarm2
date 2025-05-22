@@ -7,7 +7,7 @@ workflows:
           - certificate_credentials # <-- (CERTIFICATE_PRIVATE_KEY)
         vars:
           XCODE_PROJECT: "Chicken Farm Game.xcodeproj"
-          XCODE_SCHEME: "project"
+          XCODE_SCHEME: "Chicken Farm Game"
           BUNDLE_ID: "com.rictof.fremm"
           APP_STORE_APPLE_ID: 6746251912
         xcode: latest
