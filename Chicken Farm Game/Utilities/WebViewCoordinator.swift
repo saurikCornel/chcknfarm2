@@ -1,16 +1,17 @@
 import WebKit
 import Foundation
 
-class ChickenFarmWebCoordinator: NSObject, WKNavigationDelegate {
-    private let callback: (ChickenFarmWebStatus) -> Void
+/// Coordinates web view navigation and status updates
+class WebViewCoordinator: NSObject, WKNavigationDelegate {
+    private let statusCallback: (WebLoadStatus) -> Void
     private var didStart = false
 
-    init(onStatus: @escaping (ChickenFarmWebStatus) -> Void) {
-        self.callback = onStatus
+    init(onStatus: @escaping (WebLoadStatus) -> Void) {
+        self.statusCallback = onStatus
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        if !didStart { callback(.progressing(progress: 0.0)) }
+        if !didStart { statusCallback(.progressing(progress: 0.0)) }
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
@@ -18,15 +19,15 @@ class ChickenFarmWebCoordinator: NSObject, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        callback(.finished)
+        statusCallback(.finished)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        callback(.failure(reason: error.localizedDescription))
+        statusCallback(.failure(reason: error.localizedDescription))
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        callback(.failure(reason: error.localizedDescription))
+        statusCallback(.failure(reason: error.localizedDescription))
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -35,4 +36,4 @@ class ChickenFarmWebCoordinator: NSObject, WKNavigationDelegate {
         }
         decisionHandler(.allow)
     }
-}
+} 

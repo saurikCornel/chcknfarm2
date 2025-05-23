@@ -1,35 +1,21 @@
-import SwiftUI
-import Combine
+import Foundation
 import WebKit
+import Combine
 
-// MARK: - Протоколы
-
-/// Протокол для управления состоянием веб-загрузки
-protocol WebLoadable: AnyObject {
-    var state: ChickenFarmWebStatus { get set }
-    func setConnectivity(_ available: Bool)
-}
-
-/// Протокол для мониторинга прогресса загрузки
-protocol ProgressMonitoring {
-    func observeProgression()
-    func monitor(_ webView: WKWebView)
-}
-
-// MARK: - Основной загрузчик веб-представления
-
-/// Класс для управления загрузкой и состоянием веб-представления
-final class ChickenFarmWebLoader: NSObject, ObservableObject, WebLoadable, ProgressMonitoring {
-    // MARK: - Свойства
+/// Manages web view loading and state
+final class WebLoader: NSObject, ObservableObject {
+    // MARK: - Published Properties
     
-    @Published var state: ChickenFarmWebStatus = .standby
+    @Published var state: WebLoadStatus = .standby
     
-    let resource: URL
+    // MARK: - Private Properties
+    
+    private let resource: URL
     private var cancellables = Set<AnyCancellable>()
     private var progressPublisher = PassthroughSubject<Double, Never>()
     private var webViewProvider: (() -> WKWebView)?
     
-    // MARK: - Инициализация
+    // MARK: - Initialization
     
     init(resourceURL: URL) {
         self.resource = resourceURL
@@ -37,15 +23,15 @@ final class ChickenFarmWebLoader: NSObject, ObservableObject, WebLoadable, Progr
         observeProgression()
     }
     
-    // MARK: - Публичные методы
+    // MARK: - Public Methods
     
-    /// Привязка веб-представления к загрузчику
+    /// Attach a web view to the loader
     func attachWebView(factory: @escaping () -> WKWebView) {
         webViewProvider = factory
         triggerLoad()
     }
     
-    /// Установка доступности подключения
+    /// Set network connectivity status
     func setConnectivity(_ available: Bool) {
         switch (available, state) {
         case (true, .noConnection):
@@ -57,9 +43,9 @@ final class ChickenFarmWebLoader: NSObject, ObservableObject, WebLoadable, Progr
         }
     }
     
-    // MARK: - Приватные методы загрузки
+    // MARK: - Private Loading Methods
     
-    /// Запуск загрузки веб-представления
+    /// Trigger web view loading
     private func triggerLoad() {
         guard let webView = webViewProvider?() else { return }
         
@@ -71,9 +57,9 @@ final class ChickenFarmWebLoader: NSObject, ObservableObject, WebLoadable, Progr
         monitor(webView)
     }
     
-    // MARK: - Методы мониторинга
+    // MARK: - Monitoring Methods
     
-    /// Наблюдение за прогрессом загрузки
+    /// Observe loading progression
     func observeProgression() {
         progressPublisher
             .removeDuplicates()
@@ -84,7 +70,7 @@ final class ChickenFarmWebLoader: NSObject, ObservableObject, WebLoadable, Progr
             .store(in: &cancellables)
     }
     
-    /// Мониторинг прогресса веб-представления
+    /// Monitor web view progress
     func monitor(_ webView: WKWebView) {
         webView.publisher(for: \.estimatedProgress)
             .sink { [weak self] progress in
@@ -94,33 +80,81 @@ final class ChickenFarmWebLoader: NSObject, ObservableObject, WebLoadable, Progr
     }
 }
 
-// MARK: - Расширение для обработки навигации
+// MARK: - Web Navigation Delegate Extension
 
-extension ChickenFarmWebLoader: WKNavigationDelegate {
-    /// Обработка ошибок при навигации
+extension WebLoader: WKNavigationDelegate {
+    /// Handle navigation failures
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         handleNavigationError(error)
     }
     
-    /// Обработка ошибок при provisional навигации
+    /// Handle provisional navigation failures
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         handleNavigationError(error)
     }
     
-    // MARK: - Приватные методы обработки ошибок
+    // MARK: - Private Error Handling
     
-    /// Обобщенный метод обработки ошибок навигации
+    /// Generalized navigation error handler
     private func handleNavigationError(_ error: Error) {
         state = .failure(reason: error.localizedDescription)
     }
 }
 
-// MARK: - Расширения для улучшения функциональности
+// MARK: - Convenience Initializer Extension
 
-extension ChickenFarmWebLoader {
-    /// Создание загрузчика с безопасным URL
+extension WebLoader {
+    /// Create a loader with a safe URL
     convenience init?(urlString: String) {
         guard let url = URL(string: urlString) else { return nil }
         self.init(resourceURL: url)
     }
 }
+
+// MARK: - Web Load Status Enum
+
+enum WebLoadStatus: Equatable {
+    case standby
+    case progressing(progress: Double)
+    case finished
+    case failure(reason: String)
+    case noConnection
+    
+    /// Check if statuses are equivalent
+    func isEquivalent(to other: WebLoadStatus) -> Bool {
+        switch (self, other) {
+        case (.standby, .standby), 
+             (.finished, .finished), 
+             (.noConnection, .noConnection):
+            return true
+        case let (.progressing(a), .progressing(b)):
+            return abs(a - b) < 0.0001
+        case let (.failure(reasonA), .failure(reasonB)):
+            return reasonA == reasonB
+        default:
+            return false
+        }
+    }
+    
+    /// Current connection progress
+    var progress: Double? {
+        guard case let .progressing(value) = self else { return nil }
+        return value
+    }
+    
+    /// Indicates successful completion
+    var isSuccessful: Bool {
+        switch self {
+        case .finished: return true
+        default: return false
+        }
+    }
+    
+    /// Indicates error state
+    var hasError: Bool {
+        switch self {
+        case .failure, .noConnection: return true
+        default: return false
+        }
+    }
+} 

@@ -47,48 +47,122 @@ struct ChickenFarmLoadingOverlay<Background: View>: View, ProgressDisplayable {
     }
     
     private func verticalLayout(in geometry: GeometryProxy) -> some View {
-        VStack {
-            Spacer()
-            Image("chck")
-                .resizable()
-                .scaledToFit()
-                .frame(width: geometry.size.width * 0.7)
-            
-            progressSection(width: geometry.size.width * 0.7)
-            
-            Image("title")
-                .resizable()
-                .scaledToFit()
-                .padding()
-                .frame(width: geometry.size.width * 0.8)
-                .padding(.top, 40)
-            
-            Spacer()
-        }
-    }
-    
-    private func horizontalLayout(in geometry: GeometryProxy) -> some View {
-        HStack {
-            Spacer()
-            
+        ZStack {
             VStack {
+                
+                HStack {
+                    Image(.redcar)
+                        .resizable()
+                        .scaledToFit()
+                    Image(.whitecar)
+                        .resizable()
+                        .scaledToFit()
+                    Image(.yelowcar)
+                        .resizable()
+                        .scaledToFit()
+                }
+                .frame(width: geometry.size.width)
+                .blur(radius: 6)
+                
+                Spacer()
                 Image("chck")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: geometry.size.width * 0.3)
+                    .frame(width: geometry.size.width * 0.7)
                 
-                progressSection(width: geometry.size.width * 0.3)
-            }
-            
-            VStack {
+                progressSection(width: geometry.size.width * 0.7)
+                
                 Image("title")
                     .resizable()
                     .scaledToFit()
                     .padding()
-                    .frame(width: geometry.size.width * 0.4)
+                    .frame(width: geometry.size.width * 0.8)
+                    .padding(.top, 40)
+                
+              
+             
+                    
+                HStack {
+                    Image(.coin)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150)
+                    Spacer()
+                    Image(.lyuk)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 90)
+                }
+                .frame(width: geometry.size.width)
+                
+                
+            }
+           
+            
+        }
+        .ignoresSafeArea()
+    }
+    
+    private func horizontalLayout(in geometry: GeometryProxy) -> some View {
+        ZStack {
+            
+            VStack {
+                Spacer()
+                HStack {
+                    Image(.coin)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 150)
+                    Spacer()
+                    Image(.lyuk)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 90)
+                }
             }
             
-            Spacer()
+            VStack {
+                HStack {
+                    Image(.redcar)
+                        .resizable()
+                        .scaledToFit()
+                    Image(.whitecar)
+                        .resizable()
+                        .scaledToFit()
+                    Image(.yelowcar)
+                        .resizable()
+                        .scaledToFit()
+                }
+                .blur(radius: 6)
+                .frame(width: geometry.size.width)
+                
+                Spacer()
+            }
+            
+            HStack {
+                Spacer()
+                
+                VStack {
+                    
+                    Image("chck")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: geometry.size.width * 0.3)
+                    
+                    progressSection(width: geometry.size.width * 0.3)
+                }
+                
+                VStack {
+                    Image("title")
+                        .resizable()
+                        .scaledToFit()
+                        .padding()
+                        .frame(width: geometry.size.width * 0.4)
+                }
+                
+                Spacer()
+            }
+           
         }
     }
     
@@ -173,3 +247,16 @@ struct ChickenFarmProgressBar: View {
         .previewInterfaceOrientation(.landscapeRight)
 }
 
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "#", with: "")
+        var rgb: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&rgb)
+        
+        self.init(
+            red: Double((rgb >> 16) & 0xFF) / 255.0,
+            green: Double((rgb >> 8) & 0xFF) / 255.0,
+            blue: Double(rgb & 0xFF) / 255.0
+        )
+    }
+}

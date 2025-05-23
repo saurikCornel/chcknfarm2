@@ -1,8 +1,8 @@
 import Foundation
 import SwiftUI
 
-struct ColorUtility {
-    static func convertToColor(hexRepresentation hexString: String) -> Color {
+struct ColorTransformer {
+    static func convertToColor(hexString: String) -> Color {
         let sanitizedHex = hexString.trimmingCharacters(in: .alphanumerics.inverted)
         var colorValue: UInt64 = 0
         Scanner(string: sanitizedHex).scanHexInt64(&colorValue)
@@ -14,7 +14,7 @@ struct ColorUtility {
         return Color(red: redComponent, green: greenComponent, blue: blueComponent)
     }
     
-    static func convertToUIColor(hexRepresentation hexString: String) -> UIColor {
+    static func convertToUIColor(hexString: String) -> UIColor {
         let sanitizedHex = hexString.trimmingCharacters(in: .alphanumerics.inverted)
         var colorValue: UInt64 = 0
         Scanner(string: sanitizedHex).scanHexInt64(&colorValue)
@@ -27,24 +27,8 @@ struct ColorUtility {
     }
 }
 
-struct ChickenFarmGameInitialView: View {
-    private var gameResourceURL: URL { URL(string: "https://chickenpotato.top/play/")! }
-    
-    var body: some View {
-        ZStack {
-            Color(hex: "#373c56")
-                .ignoresSafeArea()
-            ChickenFarmEntryScreen(loader: .init(resourceURL: gameResourceURL))
-        }
-    }
-}
-
-#Preview {
-    ChickenFarmGameInitialView()
-}
-
 extension Color {
-    init(hex hexValue: String) {
+    init(hexValue: String) {
         let sanitizedHex = hexValue.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "#", with: "")
         var colorValue: UInt64 = 0
         Scanner(string: sanitizedHex).scanHexInt64(&colorValue)
@@ -57,4 +41,4 @@ extension Color {
             opacity: 1.0
         )
     }
-}
+} 
