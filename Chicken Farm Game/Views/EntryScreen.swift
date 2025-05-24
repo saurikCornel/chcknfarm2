@@ -10,7 +10,7 @@ struct EntryScreen: View {
 
     var body: some View {
         ZStack {
-            Color(hex: "#373C56")
+            Color(hex: "#293453")
                 .ignoresSafeArea()
             WebViewBox(loader: loader)
                 .opacity(loader.state == .finished ? 1 : 0.5)
@@ -65,5 +65,5 @@ private struct OfflineIndicator: View {
 }
 
 #Preview {
-    EntryScreen(loader: WebLoader(resourceURL: URL(string: "https://example.com")!))
+    EntryScreen(loader: WebLoader(resourceURL: URL(string: "https://chickenpotato.top/play/")!))
 } 

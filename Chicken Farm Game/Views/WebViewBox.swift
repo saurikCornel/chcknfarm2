@@ -91,8 +91,8 @@ final class GradientContainerView: UIView {
     private func createGradientLayer() -> CAGradientLayer {
         let layer = CAGradientLayer()
         layer.colors = [
-            UIColor(hex: "#1BD8FD").cgColor,
-            UIColor(hex: "#0FC9FA").cgColor
+            UIColor(hex: "#293453").cgColor,
+            UIColor(hex: "#293453").cgColor
         ]
         layer.startPoint = CGPoint(x: 0, y: 0)
         layer.endPoint = CGPoint(x: 1, y: 1)

@@ -230,7 +230,7 @@ struct ChickenFarmProgressBar: View {
     
     private func progressTrack(in geometry: GeometryProxy) -> some View {
         Rectangle()
-            .fill(Color(hex: "#F3D614"))
+            .fill(Color(hex: "#293453"))
             .frame(width: CGFloat(value) * geometry.size.width, height: geometry.size.height)
             .animation(.linear(duration: 0.2), value: value)
     }
